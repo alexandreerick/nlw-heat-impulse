@@ -1,42 +1,48 @@
+import { useEffect, useState } from 'react';
+import { api } from '../../services/api';
+
 import styles from './styles.module.scss';
 
 import logo from '../../assets/logo.svg';
 
+interface ILastMessages {
+  id: string;
+  text: string;
+  user: {
+    name: string;
+    avatar_url: string;
+  }
+}
+
 export const MessageList: React.FC = () => {
+  const [lastMessages, setLastMessages] = useState<ILastMessages[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const response = await api.get<ILastMessages[]>('last-messages');
+
+      setLastMessages(response.data);
+
+      console.log('RESPONSE', response.data);
+    })()
+  }, [])
+
   return (
     <div className={styles.messageListWrapper}>
       <img src={logo} alt="DoWhile 2021" />
 
       <ul className={styles.messageList}>
-        <li className={styles.message}>
-          <p className={styles.messageContent}>Não vejo a hora de começar esse evento maravilhoso que ensina muito conteúdo de qualidade para os desenvolvedores. Pra cima ROCKET!</p>
-          <div className={styles.messageUser}>
-            <div className={styles.userImage}>
-              <img src="https://github.com/alexandreerick.png" alt="Erick Alexandre" />
+        {lastMessages && lastMessages.length ? lastMessages.map((message, index) => (
+          <li className={styles.message} key={`${message.id}-${index}`}>
+            <p className={styles.messageContent}>{message.text}</p>
+            <div className={styles.messageUser}>
+              <div className={styles.userImage}>
+                <img src={message.user.avatar_url} alt={message.user.name} />
+              </div>
+              <span>{message.user.name}</span>
             </div>
-            <span>Erick Alexandre</span>
-          </div>
-        </li>
-
-        <li className={styles.message}>
-          <p className={styles.messageContent}>Não vejo a hora de começar esse evento maravilhoso que ensina muito conteúdo de qualidade para os desenvolvedores. Pra cima ROCKET!</p>
-          <div className={styles.messageUser}>
-            <div className={styles.userImage}>
-              <img src="https://github.com/alexandreerick.png" alt="Erick Alexandre" />
-            </div>
-            <span>Erick Alexandre</span>
-          </div>
-        </li>
-
-        <li className={styles.message}>
-          <p className={styles.messageContent}>Não vejo a hora de começar esse evento maravilhoso que ensina muito conteúdo de qualidade para os desenvolvedores. Pra cima ROCKET!</p>
-          <div className={styles.messageUser}>
-            <div className={styles.userImage}>
-              <img src="https://github.com/alexandreerick.png" alt="Erick Alexandre" />
-            </div>
-            <span>Erick Alexandre</span>
-          </div>
-        </li>
+          </li>
+        )) : null}
       </ul>
     </div>
   )
