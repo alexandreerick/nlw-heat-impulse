@@ -1,5 +1,11 @@
 import axios from 'axios';
 
-export const api = axios.create({
+const token = localStorage.getItem('@nlwHeat:token');
+
+const api = axios.create({
   baseURL: 'http://localhost:4000'
 });
+
+api.defaults.headers.common.authorization = `Bearer ${token}`;
+
+export { api };

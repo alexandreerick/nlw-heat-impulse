@@ -11,6 +11,7 @@ interface IUser {
 interface IAuthContextData {
   user: IUser | null;
   signInUrl: string;
+  signOut: () => void;
 }
 
 interface ISignInResponse {
@@ -37,6 +38,23 @@ const AuthProvider: React.FC = ({ children }) => {
     setUser(user);
   }
 
+  const signOut = async () => {
+    setUser(null);
+    localStorage.removeItem('@nlwHeat:token');
+  }
+
+  useEffect(() => {
+    const token = localStorage.getItem('@nlwHeat:token');
+
+    if (token) {
+      (async () => {
+        const response = await api.get<IUser>('user/profile');
+
+        setUser(response.data);
+      })()
+    }
+  }, []);
+
   useEffect(() => {
     const url = window.location.href;
 
@@ -57,7 +75,8 @@ const AuthProvider: React.FC = ({ children }) => {
   return (
     <AuthContext.Provider value={{
       signInUrl,
-      user
+      user,
+      signOut
     }}>
       {children}
     </AuthContext.Provider>
