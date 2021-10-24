@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../services/api';
+import io from 'socket.io-client';
 
 import styles from './styles.module.scss';
 
@@ -14,8 +15,31 @@ interface ILastMessages {
   }
 }
 
+const messagesQueue: ILastMessages[] = [];
+
+const socket = io('http://localhost:4000');
+
+socket.on('new_message', (newMessage: ILastMessages) => {
+  console.log('CHEGOU MENSAGEM');
+  messagesQueue.push(newMessage);
+})
+
 export const MessageList: React.FC = () => {
   const [lastMessages, setLastMessages] = useState<ILastMessages[]>([]);
+
+  useEffect(() => {
+    setInterval(() => {
+      if (messagesQueue.length > 0) {
+        setLastMessages((prevState) => [
+          messagesQueue[0],
+          prevState[0],
+          prevState[1],
+        ].filter(Boolean))
+
+        messagesQueue.shift();
+      }
+    }, 3000)
+  }, []);
 
   useEffect(() => {
     (async () => {
