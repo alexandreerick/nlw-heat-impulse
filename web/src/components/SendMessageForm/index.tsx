@@ -17,6 +17,9 @@ const SendMessageForm: React.FC = () => {
       return;
     }
 
+    const token = localStorage.getItem('@nlwHeat:token');
+    api.defaults.headers.common.authorization = `Bearer ${token}`;
+
     const response = await api.post('messages', {
       message
     });
